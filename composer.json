@@ -8,7 +8,10 @@
     "require": {
         "slim/slim": "~2.4",
         "slim/views": "~0.1",
-        "twig/twig": "~1.16"
+        "twig/twig": "~1.16",
+        "guzzlehttp/guzzle": "~5.0",
+        "yusukezzz/slim-session-manager": "~0.1",
+        "illuminate/filesystem": "~4.2"
     },
     "autoload": {
         "classmap": [

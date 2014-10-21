@@ -6,13 +6,12 @@ class AuthMiddleware extends \Slim\Middleware {
 		$req = $app->request;
 		$res = $app->response;
 
-		if ($app->getCookie('slim_session') == null && $req->params('wresult') == null) {
+		if (is_null($app->session->get('slim_session')) && is_null($req->params('wresult'))) {
 			return $res->redirect("https://ad.kidozen.com/adfs/ls/?wa=wsignin1.0&wtrealm=https://" . $req->getHost());
-		}
-		if ($req->params('wresult') != null) {
+		} elseif ($req->params('wresult')) {
 			$wresult = htmlentities($req->params('wresult'));
 			$token = substr(explode('RequestedSecurityToken', $wresult)[1], 4, -7);
-			$app->setCookie('slim_session', $token);
+			$app->session->put('slim_session', $token);
 		}
 		$this->next->call();
 	}
