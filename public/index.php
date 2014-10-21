@@ -30,8 +30,20 @@ $app->get('/', function ($name) use ($app) {
 	$app->render('index.html');
 });
 
-$app->get('/hello/:name', function ($name) use ($app) {
-	$app->render('index.html');
+$app->get('/token', function ($name) use ($app) {
+	$token = $app->session->get('slim_session');
+	$client = new GuzzleHttp\Client();
+	$response = $client->post('https://auth-qa.kidozen.com/v1/contoso/oauth/token', array(
+		'body' => array(
+			'client_id' => 'dcda76f2-f2de-444d-ba7b-a2645d418e6c',
+			'client_secret' => 'GkDf4BNhHy5LOO4qokiUuCd++V9SBBrzl2KtBU6PBM4=',
+			'assertion' => html_entity_decode($token),
+			'scope' => 'tasks',
+			'grant_type' => 'urn:ietf:params:oauth:grant-type:saml2-bearer',
+		)
+	))->getBody();
+	$app->response->headers->set('Content-Type', 'application/json');
+	$app->response->setBody($response);
 });
 
 $app->run();
