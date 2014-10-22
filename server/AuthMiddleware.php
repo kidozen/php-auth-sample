@@ -10,6 +10,7 @@ class AuthMiddleware extends \Slim\Middleware {
 			return $res->redirect("https://ad.kidozen.com/adfs/ls/?wa=wsignin1.0&wtrealm=https://" . $req->getHost());
 		} elseif ($req->params('wresult')) {
 			$wresult = htmlentities($req->params('wresult'));
+			// for demo purpose we are not validating the signature of the token
 			$token = substr(explode('RequestedSecurityToken', $wresult)[1], 4, -7);
 			$app->session->put('slim_session', $token);
 		}
