@@ -2,6 +2,7 @@
 
 $app = new \Slim\Slim([
 	'debug' => true,
+	'mode' => 'development',
 	'view' => new \Slim\Views\Twig(),
 	'templates.path' => '../templates',
 	'cookies.encrypt' => true,
@@ -33,7 +34,7 @@ $app->get('/client-side', function () use ($app) {
 });
 
 $app->get('/server-side', function () use ($app, $marketplace, $appName) {
-	$kido = new Kido($marketplace, $appName, $app->session->get('slim_session'));
+	$kido = new Kido($marketplace, $appName, $app->session->get('slim_session'), $app->mode);
 	$app->render('server-side-sample.html', [
 		'response' => json_encode($kido->getObjectSets()),
 	]);
@@ -45,7 +46,7 @@ $app->post('/', function ($name) use ($app) {
 
 $app->get('/token', function () use ($app, $marketplace, $appName) {
 	$token = $app->session->get('slim_session');
-	$kido = new Kido($marketplace, $appName, $app->session->get('slim_session'));
+	$kido = new Kido($marketplace, $appName, $app->session->get('slim_session'), $app->mode);
 	$app->response->headers->set('Content-Type', 'application/json');
 	$app->response->setBody(json_encode($kido->getKidoToken()));
 });
