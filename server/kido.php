@@ -9,15 +9,18 @@ class Kido {
 	private $plainToken;
 	private $token;
 	private $inDevMode;
+	private $retries = 0;
 
-	function __construct($marketplace, $app, $assertion, $mode = 'development') {
+	function __construct($marketplace, $app, $mode = 'development', $assertion = null) {
 		$this->client = new GuzzleHttp\Client();
 		$this->marketplace = $marketplace;
 		$this->app = $app;
 		$this->assertion = $assertion;
 		$this->inDevMode = $mode == 'development';
-		$this->config = $this->getAppConfig();
-		$this->token = $this->getToken();
+		if (!is_null($assertion)) {
+			$this->config = $this->getAppConfig();
+			$this->token = $this->getToken();
+		}
 	}
 
 	public function getKidoToken() {
@@ -35,10 +38,25 @@ class Kido {
 			$options['verify'] = false;
 		}
 		try {
-			return $this->client->get($url, $options)->json();
+			$result = $this->client->get($url, $options)->json();
+			$this->retries = 0;
+			return $result;
 		} catch (Exception $e) {
 			$this->token['access_token'] = $this->refreshToken();
-			return $this->getObjectSets();
+			$this->retries++;
+			if ($this->retries <= 5) {
+				return $this->getObjectSets();
+			} else {
+				throw new Exception('Error Processing Request');
+			}
+		}
+	}
+
+	public function setAssertion($assertion) {
+		if (is_null($this->assertion)) {
+			$this->assertion = $assertion;
+			$this->config = $this->getAppConfig();
+			$this->token = $this->getToken();
 		}
 	}
 

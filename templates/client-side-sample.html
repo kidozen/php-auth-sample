@@ -74,12 +74,15 @@
                 kido = new Kido('tasks', 'contoso.local.kidozen.com', {
                     token: token
                 });
-                kido
-                    .storage()
-                    .objectSet('tasks')
-                    .query()
-                    .done(onResponse)
-                    .fail(onRequestError);
+                kido.authenticate()
+                    .then(function() {
+                        kido
+                            .storage()
+                            .objectSet('tasks')
+                            .query()
+                            .done(onResponse)
+                            .fail(onRequestError);
+                    });
             })
             .fail(onRequestError);
     });

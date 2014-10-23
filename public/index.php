@@ -24,17 +24,19 @@ $app->add(new \Slim\Middleware\Session($manager));
 
 $marketplace = 'https://contoso.local.kidozen.com';
 $appName = 'tasks';
+$kido = new Kido($marketplace, $appName, $app->mode);
 
 $app->get('/', function () use ($app) {
 	$app->redirect('/client-side');
 });
 
-$app->get('/client-side', function () use ($app) {
+$app->get('/client-side', function () use ($app, $kido) {
+	$kido->setAssertion($app->session->get('slim_session'));
 	$app->render('client-side-sample.html');
 });
 
-$app->get('/server-side', function () use ($app, $marketplace, $appName) {
-	$kido = new Kido($marketplace, $appName, $app->session->get('slim_session'), $app->mode);
+$app->get('/server-side', function () use ($app, $kido) {
+	$kido->setAssertion($app->session->get('slim_session'));
 	$app->render('server-side-sample.html', [
 		'response' => json_encode($kido->getObjectSets()),
 	]);
@@ -44,9 +46,8 @@ $app->post('/', function ($name) use ($app) {
 	$app->redirect('/client-side');
 });
 
-$app->get('/token', function () use ($app, $marketplace, $appName) {
-	$token = $app->session->get('slim_session');
-	$kido = new Kido($marketplace, $appName, $app->session->get('slim_session'), $app->mode);
+$app->get('/token', function () use ($app, $kido) {
+	$kido->setAssertion($app->session->get('slim_session'));
 	$app->response->headers->set('Content-Type', 'application/json');
 	$app->response->setBody(json_encode($kido->getKidoToken()));
 });
