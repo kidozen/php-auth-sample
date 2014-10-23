@@ -34,7 +34,12 @@ class Kido {
 		if ($this->inDevMode) {
 			$options['verify'] = false;
 		}
-		return $this->client->get($url, $options)->json();
+		try {
+			return $this->client->get($url, $options)->json();
+		} catch (Exception $e) {
+			$this->token['access_token'] = $this->refreshToken();
+			return $this->getObjectSets();
+		}
 	}
 
 	private function getPlainToken() {
@@ -73,6 +78,28 @@ class Kido {
 			}
 		}
 		return $token;
+	}
+
+	private function refreshToken() {
+		$options = [
+			'body' => [
+				'client_id' => 'dcda76f2-f2de-444d-ba7b-a2645d418e6c',
+				'client_secret' => 'GkDf4BNhHy5LOO4qokiUuCd++V9SBBrzl2KtBU6PBM4=',
+				'scope' => 'tasks',
+				'grant_type' => 'refresh_token',
+				'refresh_token' => $this->token['refresh_token'],
+			]
+		];
+		if ($this->inDevMode) {
+			$options['verify'] = false;
+		}
+		$token = $this->client->post($this->config['authConfig']['oauthTokenEndpoint'], $options)->json();
+
+		if (!$token || !isset($token['access_token'])) {
+			throw new Exception('Unable to refresh KidoZen token');
+		}
+
+		return $token['access_token'];
 	}
 
 	private function getAppConfig() {
