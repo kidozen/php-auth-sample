@@ -70,20 +70,19 @@
                 type: 'GET',
                 url: '/token'
             })
-            .done(function(token) {
+            .then(function(token) {
                 kido = new Kido('tasks', 'contoso.local.kidozen.com', {
                     token: token
                 });
-                kido.authenticate()
-                    .then(function() {
-                        kido
-                            .storage()
-                            .objectSet('tasks')
-                            .query()
-                            .done(onResponse)
-                            .fail(onRequestError);
-                    });
+                return kido.authenticate();
             })
+            .then(function() {
+                return kido
+                    .storage()
+                    .objectSet('tasks')
+                    .query();
+            })
+            .done(onResponse)
             .fail(onRequestError);
     });
     </script>
